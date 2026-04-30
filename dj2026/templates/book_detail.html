@@ -1,0 +1,450 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ book.title }} - 图书详情 - 阅见万象{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        background: #ffffff;  /* 改为白色 */
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);  /* 可以适当调整阴影透明度 */
+        padding: 3rem;
+        margin-bottom: 3rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);  /* 改为更浅的边框 */
+    }
+
+    /* 其他所有样式保持不变 */
+    .book-cover-container {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .book-cover-fixed {
+        width: 240px;
+        height: 320px;
+        object-fit: cover;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease;
+    }
+
+    .book-cover-fixed:hover {
+        transform: scale(1.02);
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .book-detail-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+        }
+
+        .book-cover-fixed {
+            width: 200px;
+            height: 280px;
+        }
+
+        .book-cover-container {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .book-cover-fixed {
+            width: 180px;
+            height: 240px;
+        }
+    }
+
+    .book-info-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem 1rem;
+        margin-bottom: 2rem;
+        align-items: center;
+    }
+
+    .book-info-label {
+        font-weight: bold;
+        color: #2c3e50;
+        min-width: 80px;
+    }
+
+    .book-info-value {
+        color: #555;
+    }
+
+    /* 侧边栏按钮容器样式 */
+    .sidebar-buttons {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .sidebar-button {
+        width: 100%;
+        padding: 0.8rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+    }
+
+    .btn-like {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-like:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-shelf {
+        background: #f8f9fa;
+        color: #654321;
+        border: 1px solid rgba(101, 67, 33, 0.3);
+    }
+
+    .btn-shelf:hover {
+        background: rgba(245, 222, 179, 0.9);
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    /* 新增开始阅读按钮样式 */
+    .btn-read {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-read:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    /* 棕色主题按钮样式 */
+    .btn-brown {
+        background: #A0522D;
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .btn-brown:hover {
+        background: #8B4513;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(160, 82, 45, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* 底部按钮容器 */
+    .bottom-buttons {
+        text-align: center;
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* 图书评分样式 */
+    .book-rating-badge {
+        background: #ffffff;
+        border-radius: 6px;
+        border: 1px solid #ffddd5;
+        padding: 0.8rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .book-rating-score {
+        font-weight: bold;
+        color: #e74c3c;
+        font-size: 1.1rem;
+    }
+
+    .book-rating-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.3rem;
+    }
+
+    /* 提示框样式 */
+    .feature-alert {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+
+    .feature-alert-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .feature-alert h4 {
+        color: #e74c3c;
+        margin-bottom: 1rem;
+    }
+
+    .feature-alert p {
+        color: #666;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .btn-close-alert {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .btn-close-alert:hover {
+        background: #2980b9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 功能未开发提示框 -->
+<div id="feature-alert" class="feature-alert">
+    <h4>🚧 功能暂未开发</h4>
+    <p>在线阅读功能正在开发中，敬请期待！</p>
+    <p>您可以先将本书加入书架，功能上线后会第一时间通知您。</p>
+    <button onclick="closeFeatureAlert()" class="btn-close-alert">知道了</button>
+</div>
+<div id="feature-alert-overlay" class="feature-alert-overlay" onclick="closeFeatureAlert()"></div>
+
+<div class="card">
+    <div class="book-detail-grid" style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem; align-items: start;">
+        <!-- 图书封面 -->
+        <div>
+            <div class="book-cover-container">
+                <img src="{% static '' %}images/book_{{ book.id }}.jpg"
+                     alt="{{ book.title }}"
+                     class="book-cover-fixed"
+                     onerror="this.onerror=null; this.src='{% static 'images/default_book.jpg' %}'">
+                <div style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+                    {{ book.title }}
+                </div>
+            </div>
+
+            <!-- 侧边栏按钮区域 -->
+            <div class="sidebar-buttons">
+                <!-- 点赞按钮 -->
+                <form method="post" action="{% url 'like_book' book.id %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="sidebar-button btn-like">
+                        👍 点赞 ({{ book.likes }})
+                    </button>
+                </form>
+
+                <!-- 加入书架按钮 -->
+                <a href="{% url 'my_bookshelf' %}?add_book={{ book.id }}"
+                   class="sidebar-button btn-shelf">
+                    📚 加入书架
+                </a>
+
+                <!-- 开始阅读按钮 -->
+                <button onclick="showFeatureAlert()" class="sidebar-button btn-read">
+                    📖 开始阅读
+                </button>
+            </div>
+        </div>
+
+        <!-- 图书信息 -->
+        <div>
+            <h1 style="margin-bottom: 1rem; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 0.8rem;">
+                {{ book.title }}
+            </h1>
+
+            <div class="book-info-grid">
+                <div class="book-info-label">作者:</div>
+                <div class="book-info-value">{{ book.author }}</div>
+
+                <div class="book-info-label">出版社:</div>
+                <div class="book-info-value">{{ book.publisher }}</div>
+
+                <div class="book-info-label">分类:</div>
+                <div class="book-info-value">
+                    <a href="{% url 'book_list' %}?category={{ book.category.id }}"
+                       style="color: #3498db; text-decoration: none; background: #ebf5fb; padding: 2px 8px; border-radius: 12px;">
+                        {{ book.category.name }}
+                    </a>
+                </div>
+
+                <div class="book-info-label">标签:</div>
+                <div class="book-info-value">
+                    {% if book.tags %}
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+                            {% for tag in book.tags.split %}
+                                <span style="background: #f1f2f6; padding: 2px 8px; border-radius: 10px; font-size: 0.85rem;">
+                                    {{ tag }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <span style="color: #999;">暂无标签</span>
+                    {% endif %}
+                </div>
+
+                <div class="book-info-label">价格:</div>
+                <div class="book-info-value">
+                    <span style="color: #e74c3c; font-weight: bold; font-size: 1.3rem;">
+                        ¥{{ book.price }}
+                    </span>
+                    {% if book.original_price %}
+                    <span style="color: #95a5a6; text-decoration: line-through; margin-left: 0.5rem; font-size: 0.9rem;">
+                        ¥{{ book.original_price }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="book-info-label">评分:</div>
+                <div class="book-info-value" style="color: #e74c3c; font-weight: bold;">
+                    ⭐ {{ book.score }}
+                </div>
+
+                <div class="book-info-label">点赞数:</div>
+                <div class="book-info-value" style="color: #7f8c8d;">
+                    <span style="color: #3498db;">👍</span> {{ book.likes }} 次
+                </div>
+
+                <div class="book-info-label">上架时间:</div>
+                <div class="book-info-value" style="color: #666;">
+                    {{ book.created_at|date:"Y年m月d日" }}
+                </div>
+
+                {% if book.publish_date %}
+                <div class="book-info-label">出版日期:</div>
+                <div class="book-info-value" style="color: #666;">
+                    {{ book.publish_date|date:"Y年m月" }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 1rem; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 0.5rem;">
+                    图书简介
+                </h3>
+                <div style="line-height: 1.8; color: #555; padding: 0.5rem 0; font-size: 1.05rem;">
+                    {{ book.description|linebreaks }}
+                </div>
+
+                {% if book.features %}
+                <div style="margin-top: 2rem;">
+                    <h4 style="margin-bottom: 0.8rem; color: #2c3e50;">特色亮点</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.8rem;">
+                        {% for feature in book.features.split %}
+                        <span style="background: #e8f4fc; color: #2980b9; padding: 6px 12px; border-radius: 16px; font-size: 0.9rem;">
+                            ✨ {{ feature }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 相关推荐 -->
+{% if related_books %}
+<div class="card" style="margin-top: 2rem;">
+    <h3 style="margin-bottom: 1.5rem; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 0.5rem;">
+        相关推荐
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1.5rem;">
+        {% for related_book in related_books %}
+        <a href="{% url 'book_detail' related_book.id %}" style="text-decoration: none; color: inherit;">
+            <div style="text-align: center;">
+                <img src="{% static '' %}images/book_{{ related_book.id }}.jpg"
+                     alt="{{ related_book.title }}"
+                     style="width: 100px; height: 140px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);"
+                     onerror="this.onerror=null; this.src='{% static 'images/default_book.jpg' %}'">
+                <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #333;">
+                    {{ related_book.title|truncatechars:8 }}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- 返回按钮 -->
+<div class="bottom-buttons">
+    <a href="{% url 'book_list' %}" class="btn-brown">
+        返回图书列表
+    </a>
+    <a href="{% url 'category_list' %}" class="btn-brown">
+        浏览全部分类
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 显示功能未开发提示
+    function showFeatureAlert() {
+        document.getElementById('feature-alert').style.display = 'block';
+        document.getElementById('feature-alert-overlay').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // 禁止背景滚动
+    }
+
+    // 关闭功能未开发提示
+    function closeFeatureAlert() {
+        document.getElementById('feature-alert').style.display = 'none';
+        document.getElementById('feature-alert-overlay').style.display = 'none';
+        document.body.style.overflow = 'auto'; // 恢复背景滚动
+    }
+
+    // 点击ESC键关闭提示
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeFeatureAlert();
+        }
+    });
+</script>
+{% endblock %}

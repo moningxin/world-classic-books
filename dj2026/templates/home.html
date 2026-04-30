@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}名著书房 - 阅见万象{% endblock %}
+
+{% block extra_css %}
+<!-- 引入热门排行榜专用CSS -->
+<link rel="stylesheet" href="{% static 'css/hot.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+    <!-- 主要内容区 -->
+    <div class="container">
+        <!-- 轮播图区域 -->
+        <section class="carousel-container">
+            <!-- 轮播图1 -->
+            <div class="carousel-slide active">
+                <img src="{% static 'images/lunbo1.jpg' %}" alt="四季流转，阅读相伴">
+            </div>
+
+            <!-- 轮播图2 -->
+            <div class="carousel-slide">
+                <img src="{% static 'images/lunbo2.jpg' %}" alt="穿越时光的共鸣">
+            </div>
+
+            <!-- 轮播图3 -->
+            <div class="carousel-slide">
+                <img src="{% static 'images/lunbo3.png' %}" alt="科幻宇宙，探索无限可能">
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="carousel-controls">
+                <button class="carousel-btn prev-btn">❮</button>
+                <button class="carousel-btn next-btn">❯</button>
+            </div>
+
+            <!-- 指示器 -->
+            <div class="carousel-indicators">
+                <span class="carousel-indicator active" data-slide="0"></span>
+                <span class="carousel-indicator" data-slide="1"></span>
+                <span class="carousel-indicator" data-slide="2"></span>
+            </div>
+        </section>
+
+        <!-- 名著精选榜 -->
+        <h2 class="section-title">必读名著 TOP 榜</h2>
+
+        <div class="rankings-section" style="margin-top: 2rem; margin-bottom: 2rem;">
+            <div class="rankings-grid">
+                <!-- 经典传世榜 -->
+                <div class="ranking-card classic-rank">
+                    <h3>🏆 经典传世榜</h3>
+                    <ul class="ranking-list">
+                        {% if classic_books %}
+                            {% for book in classic_books|dictsortreversed:"score" %}
+                                {% if forloop.counter <= 5 %}
+                                <li class="ranking-item">
+                                    <a href="{% url 'book_detail' book.id %}">
+                                        <div class="ranking-header">
+                                            <span class="ranking-title">{{ book.title|truncatechars:12 }}</span>
+                                            {% if book.score %}
+                                            <span class="ranking-score">{{ book.score }}</span>
+                                            {% else %}
+                                            <span class="ranking-score">9.0</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="ranking-meta">{{ book.author|truncatechars:10 }} | {{ book.tags|slice:":15" }}</div>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <!-- 默认静态数据 - 需要为每个静态书籍创建一个虚拟ID -->
+                            <li class="ranking-item">
+                                <a href="{% url 'book_detail' 5 %}">
+                                    <div class="ranking-header">
+                                        <span class="ranking-title">《百年孤独》</span>
+                                        <span class="ranking-score">9.2</span>
+                                    </div>
+                                    <div class="ranking-meta">马尔克斯 | 魔幻现实主义 诺贝尔文学奖</div>
+                                </a>
+                            </li>
+                            <li class="ranking-item">
+                                <a href="{% url 'book_detail' 15 %}">
+                                    <div class="ranking-header">
+                                        <span class="ranking-title">《傲慢与偏见》</span>
+                                        <span class="ranking-score">9.0</span>
+                                    </div>
+                                    <div class="ranking-meta">简・奥斯汀 | 爱情 社会讽刺</div>
+                                </a>
+                            </li>
+                            <li class="ranking-item">
+                                <a href="{% url 'book_detail' 4 %}">
+                                    <div class="ranking-header">
+                                        <span class="ranking-title">《战争与和平》</span>
+                                        <span class="ranking-score">8.9</span>
+                                    </div>
+                                    <div class="ranking-meta">托尔斯泰 | 史诗 历史</div>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- 名家代表作榜 -->
+                <div class="ranking-card masterpiece-rank">
+                    <h3>🎭 名家代表作榜</h3>
+                    <ul class="ranking-list">
+                        {% if masterpiece_books %}
+                            {% for book in masterpiece_books|dictsortreversed:"score" %}
+                                {% if forloop.counter <= 5 %}
+                                <li class="ranking-item">
+                                    <a href="{% url 'book_detail' book.id %}">
+                                        <div class="ranking-header">
+                                            <span class="ranking-title">{{ book.title|truncatechars:12 }}</span>
+                                            {% if book.score %}
+                                            <span class="ranking-score">{{ book.score }}</span>
+                                            {% else %}
+                                            <span class="ranking-score">9.1</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="ranking-meta">{{ book.author|truncatechars:10 }} | {{ book.tags|slice:":15" }}</div>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <!-- 默认静态数据 -->
+                            <li class="ranking-item">
+                                <a href="{% url 'book_detail' 11 %}">
+                                    <div class="ranking-header">
+                                        <span class="ranking-title">《哈姆雷特》</span>
+                                        <span class="ranking-score">9.1</span>
+                                    </div>
+                                    <div class="ranking-meta">莎士比亚 | 戏剧 悲剧</div>
+                                </a>
+                            </li>
+                            <li class="ranking-item">
+                                <a href="{% url 'book_detail' 16 %}">
+                                    <div class="ranking-header">
+                                        <span class="ranking-title">《巴黎圣母院》</span>
+                                        <span class="ranking-score">8.9</span>
+                                    </div>
+                                    <div class="ranking-meta">雨果 | 浪漫主义 人性</div>
+                                </a>
+                            </li>
+                            <li class="ranking-item">
+                                <a href="{% url 'book_detail' 17 %}">
+                                    <div class="ranking-header">
+                                        <span class="ranking-title">《红与黑》</span>
+                                        <span class="ranking-score">8.8</span>
+                                    </div>
+                                    <div class="ranking-meta">司汤达 | 批判现实主义</div>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- 冷门高分榜 -->
+                <div class="ranking-card hidden-rank">
+                    <h3>💎 冷门高分榜</h3>
+                    <ul class="ranking-list">
+                        {% if hidden_gem_books %}
+                            {% for book in hidden_gem_books|dictsortreversed:"score" %}
+                                {% if forloop.counter <= 5 %}
+                                <li class="ranking-item">
+                                    <a href="{% url 'book_detail' book.id %}">
+                                        <div class="ranking-header">
+                                            <span class="ranking-title">{{ book.title|truncatechars:12 }}</span>
+                                            {% if book.score %}
+                                            <span class="ranking-score">{{ book.score }}</span>
+                                            {% else %}
+                                            <span class="ranking-score">8.9</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="ranking-meta">{{ book.author|truncatechars:10 }} | {{ book.tags|slice:":15" }}</div>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <!-- 默认静态数据 -->
+                            <li class="ranking-item">
+                                <a href="{% url 'book_detail' 10 %}">
+                                    <div class="ranking-header">
+                                        <span class="ranking-title">《局外人》</span>
+                                        <span class="ranking-score">9.0</span>
+                                    </div>
+                                    <div class="ranking-meta">加缪 | 存在主义 短篇</div>
+                                </a>
+                            </li>
+                            <li class="ranking-item">
+                                <a href="{% url 'book_detail' 18 %}">
+                                    <div class="ranking-header">
+                                        <span class="ranking-title">《呼啸山庄》</span>
+                                        <span class="ranking-score">8.9</span>
+                                    </div>
+                                    <div class="ranking-meta">艾米莉・勃朗特 | 哥特 复仇</div>
+                                </a>
+                            </li>
+                            <li class="ranking-item">
+                                <a href="{% url 'book_detail' 19 %}">
+                                    <div class="ranking-header">
+                                        <span class="ranking-title">《变形记》</span>
+                                        <span class="ranking-score">8.8</span>
+                                    </div>
+                                    <div class="ranking-meta">卡夫卡 | 荒诞 隐喻</div>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 热门排行榜区域 -->
+        <div class="rankings-section" style="margin-top: 3rem; margin-bottom: 3rem;">
+            <h2 class="rankings-title">📚 热门排行榜</h2>
+            <div class="rankings-grid">
+                <!-- 豆瓣高分榜 -->
+                <div class="ranking-card ranking-douban">
+                    <h3>🏅 豆瓣高分榜</h3>
+                    <ul class="ranking-list">
+                        {% if books %}
+                            {% for book in books|dictsortreversed:"score" %}
+                                {% if book.category.name == "豆瓣高分榜" or book.score >= 8.8 %}
+                                    {% if forloop.counter <= 5 %}
+                                     <li class="ranking-item">
+                                        <a href="{% url 'book_detail' book.id %}">
+                                            <div class="ranking-header">
+                                                <span class="ranking-title">{{ book.title|truncatechars:12 }}</span>
+                                                <span class="ranking-score">{{ book.score }}</span>
+                                            </div>
+                                            <div class="ranking-meta">{{ book.author }} | {{ book.tags|slice:":10" }}</div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <li class="ranking-item" style="color: #666; text-align: center;">暂无数据</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- 男生偏好榜 -->
+                <div class="ranking-card ranking-male">
+                    <h3>🎯 男生偏好榜</h3>
+                    <ul class="ranking-list">
+                        {% if books %}
+                            {% for book in books|dictsortreversed:"likes" %}
+                                {% if book.target_audience == "男生偏好" %}
+                                    {% if forloop.counter <= 3 %}
+                                    <li class="ranking-item">
+                                        <a href="{% url 'book_detail' book.id %}">
+                                            <div class="ranking-header">
+                                                <span class="ranking-title">{{ book.title|truncatechars:10 }}</span>
+                                                <span class="ranking-likes">👍 {{ book.likes }}</span>
+                                            </div>
+                                            <div class="ranking-meta">{{ book.tags|truncatechars:15 }}</div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <li class="ranking-item" style="color: #666; text-align: center;">暂无数据</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- 女生偏好榜 -->
+                <div class="ranking-card ranking-female">
+                    <h3>💖 女生偏好榜</h3>
+                    <ul class="ranking-list">
+                        {% if books %}
+                            {% for book in books|dictsortreversed:"likes" %}
+                                {% if book.target_audience == "女生偏好" %}
+                                    {% if forloop.counter <= 3 %}
+                                    <li class="ranking-item">
+                                        <a href="{% url 'book_detail' book.id %}">
+                                            <div class="ranking-header">
+                                                <span class="ranking-title">{{ book.title|truncatechars:10 }}</span>
+                                                <span class="ranking-likes">👍 {{ book.likes }}</span>
+                                            </div>
+                                            <div class="ranking-meta">{{ book.tags|truncatechars:15 }}</div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <li class="ranking-item" style="color: #666; text-align: center;">暂无数据</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速导航 -->
+        <div class="card" style="text-align: center; margin-top: 3rem;">
+            <h2 style="margin-bottom: 1.5rem;">快速导航</h2>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="{% url 'category_list' %}" class="btn btn-primary">浏览全部分类</a>
+                <a href="{% url 'book_list' %}" class="btn btn-success">查看所有图书</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 轮播图脚本 -->
+    <script>
+        // 轮播图功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取轮播图元素
+            const slides = document.querySelectorAll('.carousel-slide');
+            const indicators = document.querySelectorAll('.carousel-indicator');
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+
+            let currentSlide = 0;
+            const totalSlides = slides.length;
+
+            // 显示指定幻灯片
+            function showSlide(index) {
+                // 隐藏所有幻灯片
+                slides.forEach(slide => slide.classList.remove('active'));
+                indicators.forEach(indicator => indicator.classList.remove('active'));
+
+                // 显示当前幻灯片
+                slides[index].classList.add('active');
+                indicators[index].classList.add('active');
+                currentSlide = index;
+            }
+
+            // 下一张幻灯片
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                showSlide(currentSlide);
+            }
+
+            // 上一张幻灯片
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                showSlide(currentSlide);
+            }
+
+            // 自动轮播
+            let slideInterval = setInterval(nextSlide, 5000);
+
+            // 重置自动轮播定时器
+            function resetInterval() {
+                clearInterval(slideInterval);
+                slideInterval = setInterval(nextSlide, 5000);
+            }
+
+            // 事件监听
+            nextBtn.addEventListener('click', function() {
+                nextSlide();
+                resetInterval();
+            });
+
+            prevBtn.addEventListener('click', function() {
+                prevSlide();
+                resetInterval();
+            });
+
+            // 指示器点击事件
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', function() {
+                    showSlide(index);
+                    resetInterval();
+                });
+            });
+
+            // 悬停暂停轮播
+            const carouselContainer = document.querySelector('.carousel-container');
+            carouselContainer.addEventListener('mouseenter', function() {
+                clearInterval(slideInterval);
+            });
+
+            carouselContainer.addEventListener('mouseleave', function() {
+                resetInterval();
+            });
+
+            // 键盘控制
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                    resetInterval();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                    resetInterval();
+                }
+            });
+
+            // 榜单卡片点击效果（原有功能）
+            const rankingCards = document.querySelectorAll('.ranking-card');
+            rankingCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'translateY(-8px)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px)';
+                    }, 200);
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,1 @@
+web: gunicorn dj2026.wsgi:application

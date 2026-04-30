@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+{% if category %}{{ category.name }} - {% endif %}图书列表 - 阅见万象
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/book_list.css' %}">
+
+<div class="content-area">
+    <!-- 内容头部 -->
+    <div class="content-header">
+        <h1 class="content-title">
+            {% if category %}
+                {{ category.name }} 分类图书
+            {% else %}
+                📚所有图书
+            {% endif %}
+        </h1>
+        <div class="content-tools">
+            <!-- 搜索框 -->
+            <form method="get" class="search-box" id="searchForm">
+                <input type="text" name="q" class="search-input" placeholder="搜索书名、作者或出版社..."
+                       value="{{ request.GET.q }}">
+                <button type="submit" class="btn btn-primary">搜索</button>
+                {% if request.GET.q %}
+                <a href="{% if category %}{% url 'book_list' category.id %}{% else %}{% url 'book_list' %}{% endif %}"
+                   class="btn btn-secondary">清除</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- 排序选项 -->
+    {% if not category %}
+    <div class="sort-section">
+        <span class="sort-label">排序方式：</span>
+        <a href="?sort_by=score" class="sort-option {% if request.GET.sort_by == 'score' %}active{% endif %}">按评分</a>
+        <a href="?sort_by=likes" class="sort-option {% if request.GET.sort_by == 'likes' %}active{% endif %}">按点赞数</a>
+        <a href="?sort_by=price_low" class="sort-option {% if request.GET.sort_by == 'price_low' %}active{% endif %}">价格从低到高</a>
+        <a href="?sort_by=price_high" class="sort-option {% if request.GET.sort_by == 'price_high' %}active{% endif %}">价格从高到低</a>
+    </div>
+    {% endif %}
+
+    <!-- 图书列表 -->
+    {% if books %}
+    <div class="books-grid">
+        {% for book in books %}
+        <div class="book-card" onclick="window.location.href='{% url 'book_detail' book.id %}'">
+            <div class="book-cover">
+                <!-- 受众标签 -->
+                {% if book.target_audience == '男生偏好' %}
+                <div class="audience-tag tag-male">男生偏好</div>
+                {% elif book.target_audience == '女生偏好' %}
+                <div class="audience-tag tag-female">女生偏好</div>
+                {% endif %}
+
+                <!-- 封面图片 -->
+                <img src="{% static '' %}images/book_{{ book.id }}.jpg"
+                     alt="{{ book.title }}"
+                     class="book-cover-img"
+                     onerror="this.onerror=null; this.src='{% static 'images/default_book.jpg' %}'">
+            </div>
+
+            <div class="book-info">
+                <h3 class="book-title">
+                    <a href="{% url 'book_detail' book.id %}" class="book-title-link">{{ book.title }}</a>
+                </h3>
+
+                <div class="book-meta">
+                    <p><strong>作者:</strong> {{ book.author }}</p>
+                    <p><strong>出版社:</strong> {{ book.publisher }}</p>
+                    <p><strong>分类:</strong> {{ book.category.name }}</p>
+                </div>
+
+                <!-- 难度和评分 -->
+                <div class="book-difficulty">
+                    <span class="difficulty-badge">{{ book.difficulty_level }}</span>
+                    <span class="book-rating">⭐ {{ book.score }}</span>
+                </div>
+
+                <!-- 标签 -->
+                <div class="book-tags">
+                    {% if book.tags %}
+                        {% for tag in book.tags.split|slice:":2" %}
+                        <span class="book-tag">{{ tag }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- 价格和点赞 -->
+                <div class="book-footer">
+                    <span class="book-price">¥{{ book.price }}</span>
+                    <span class="book-likes">👍 {{ book.likes }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- 无结果状态 -->
+    <div class="empty-state">
+        <div class="empty-icon">📚</div>
+        <p>暂无图书</p>
+        <a href="{% url 'book_list' %}" class="btn btn-primary">查看所有图书</a>
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('图书列表页面加载完成');
+
+    // 搜索表单提交
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            console.log('搜索表单提交');
+        });
+    }
+
+    // 排序选项点击效果
+    const sortOptions = document.querySelectorAll('.sort-option');
+    sortOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            console.log('排序选项被点击:', this.textContent);
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

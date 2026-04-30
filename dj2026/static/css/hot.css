@@ -1,0 +1,248 @@
+/* ==================== 热门排行榜整体布局 ==================== */
+.rankings-section {
+    margin: 3rem 0;
+}
+
+.rankings-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    font-size: 1.8rem;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.rankings-title:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(to right, #3498db, #e67e22);
+    border-radius: 2px;
+}
+
+.rankings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* ==================== 排行榜卡片样式 ==================== */
+.ranking-card {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 1.5rem;
+    height: 100%;
+}
+
+.ranking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
+}
+
+.ranking-card h3 {
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #eee;
+    color: #333;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 豆瓣高分榜特殊样式 */
+.ranking-douban {
+    border-top: 4px solid #27ae60;
+}
+
+.ranking-douban h3 {
+    color: #27ae60;
+    border-left: 4px solid #27ae60;
+    padding-left: 0.75rem;
+}
+
+/* 男生偏好榜特殊样式 */
+.ranking-male {
+    border-top: 4px solid #3498db;
+}
+
+.ranking-male h3 {
+    color: #3498db;
+    border-left: 4px solid #3498db;
+    padding-left: 0.75rem;
+}
+
+/* 女生偏好榜特殊样式 */
+.ranking-female {
+    border-top: 4px solid #e84393;
+}
+
+.ranking-female h3 {
+    color: #e84393;
+    border-left: 4px solid #e84393;
+    padding-left: 0.75rem;
+}
+
+/* ==================== 排行榜列表样式 ==================== */
+.ranking-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ranking-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    transition: all 0.3s ease;
+}
+
+.ranking-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.ranking-item:hover {
+    background-color: #f8f9fa;
+    padding: 0.8rem;
+    border-radius: 8px;
+    transform: translateX(5px);
+}
+
+.ranking-item a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+.ranking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.ranking-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.ranking-score {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    min-width: 45px;
+    text-align: center;
+}
+
+.ranking-likes {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    min-width: 60px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.ranking-meta {
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ==================== 响应式设计 ==================== */
+@media (max-width: 992px) {
+    .rankings-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .rankings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ranking-card {
+        padding: 1.2rem;
+    }
+
+    .rankings-title {
+        font-size: 1.5rem;
+    }
+
+    .ranking-card h3 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .rankings-section {
+        margin: 2rem 0;
+    }
+
+    .rankings-title {
+        font-size: 1.3rem;
+    }
+
+    .ranking-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .ranking-score, .ranking-likes {
+        align-self: flex-start;
+    }
+}
+
+/* ==================== 动画效果 ==================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ranking-card {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.ranking-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.ranking-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.ranking-card:nth-child(3) {
+    animation-delay: 0.3s;
+}

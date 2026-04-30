@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}图书分类 - 阅见万象{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/categories.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="categories-container">
+    <!-- 左侧筛选栏 -->
+    <aside class="filter-sidebar">
+        <div class="filter-header">
+            <h2>筛选条件</h2>
+        </div>
+
+        <!-- 分类筛选 -->
+        <div class="filter-group">
+            <h3>📁 图书分类</h3>
+            <div class="filter-tags">
+                <div class="filter-tag selected" data-filter="category" data-value="all">
+                    全部
+                </div>
+                <div class="filter-tag" data-filter="category" data-value="poetry">
+                    诗歌
+                </div>
+                <div class="filter-tag" data-filter="category" data-value="novel">
+                    小说
+                </div>
+                <div class="filter-tag" data-filter="category" data-value="classic">
+                    经典名著
+                </div>
+                <div class="filter-tag" data-filter="category" data-value="modern">
+                    现代文学
+                </div>
+            </div>
+        </div>
+
+        <!-- 难度筛选 -->
+        <div class="filter-group">
+            <h3>📊 难度等级</h3>
+            <div class="filter-tags">
+                <div class="filter-tag selected" data-filter="difficulty" data-value="all">
+                    全部
+                </div>
+                <div class="filter-tag" data-filter="difficulty" data-value="beginner">
+                    入门级
+                </div>
+                <div class="filter-tag" data-filter="difficulty" data-value="intermediate">
+                    进阶级
+                </div>
+                <div class="filter-tag" data-filter="difficulty" data-value="advanced">
+                    高级
+                </div>
+            </div>
+        </div>
+
+        <!-- 受众偏好 -->
+        <div class="filter-group">
+            <h3>👥 受众偏好</h3>
+            <div class="filter-tags">
+                <div class="filter-tag selected" data-filter="audience" data-value="all">
+                    全部
+                </div>
+                <div class="filter-tag" data-filter="audience" data-value="male">
+                    男生偏好
+                </div>
+                <div class="filter-tag" data-filter="audience" data-value="female">
+                    女生偏好
+                </div>
+            </div>
+        </div>
+
+        <!-- 热门榜单 -->
+        <div class="filter-group">
+            <h3>🏆 热门榜单</h3>
+            <div class="filter-tags">
+                <!-- 添加全部选项 -->
+                <div class="filter-tag selected" data-filter="rank" data-value="all">
+                    全部
+                </div>
+                <div class="filter-tag" data-filter="rank" data-value="douban">
+                    豆瓣高分榜
+                </div>
+                <div class="filter-tag" data-filter="rank" data-value="college">
+                    大学生必读书单
+                </div>
+                <div class="filter-tag" data-filter="rank" data-value="healing">
+                    治愈系名著
+                </div>
+                <div class="filter-tag" data-filter="rank" data-value="classic">
+                    经典传世榜
+                </div>
+                <div class="filter-tag" data-filter="rank" data-value="masterpiece">
+                    名家代表作榜
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 右侧内容区 -->
+    <main class="content-area">
+        <div class="content-header">
+            <h1 class="content-title">分类浏览</h1>
+            <div class="content-stats">
+                共 <span id="bookCount">{{ books|length }}</span> 本图书
+            </div>
+        </div>
+
+        <!-- 图书列表 -->
+        {% if books %}
+        <div class="books-list">
+            {% for book in books %}
+            <div class="book-horizontal-card">
+                <div class="book-cover-area">
+                    <!-- 最简单的方法 -->
+                    <img src="{% static '' %}images/book_{{ book.id }}.jpg"
+                         alt="{{ book.title }}"
+                         class="book-cover"
+                         onerror="this.onerror=null; this.src='{% static 'images/default_book.jpg' %}'">
+
+
+                    <div class="book-status-badge {% if book.book_status == '连载中' %}status-serial{% else %}status-complete{% endif %}">
+                        {{ book.book_status }}
+                    </div>
+                </div>
+
+                <div class="book-info-area">
+                    <div class="book-title-row">
+                        <h2 class="book-title">
+                            <a href="{% url 'book_detail' book.id %}">{{ book.title }}</a>
+                        </h2>
+                        <div class="book-author">作者：{{ book.author }}</div>
+                    </div>
+
+                    <div class="book-description">
+                        {{ book.description|truncatechars:100 }}
+                    </div>
+
+                    <div class="book-tags">
+                        {% if book.tags %}
+                            {% with tag_list=book.tags.split %}
+                                {% for tag in tag_list %}
+                                    {% if forloop.counter <= 3 %}
+                                    <span class="book-tag">{{ tag }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+
+                    <div class="book-actions">
+                        <!-- 开始阅读按钮 -->
+                        <a href="{% url 'book_detail' book.id %}"
+                           class="btn-read"
+                           style="text-decoration: none !important; border-bottom: none !important;">
+                            图书详情
+                        </a>
+                        <!-- 加入书架按钮 -->
+                        <a href="{% url 'my_bookshelf' %}?add_book={{ book.id }}"
+                           class="btn-collect"
+                           style="text-decoration: none !important; border-bottom: none !important;">
+                            加入书架
+                        </a>
+                    </div>
+                </div>
+
+                <div class="book-meta-area">
+                    <div class="book-rating">
+                        <div class="rating-stars">
+                            {% with score=book.score %}
+                            {% if score >= 9.5 %}★★★★★
+                            {% elif score >= 9.0 %}★★★★★
+                            {% elif score >= 8.5 %}★★★★☆
+                            {% elif score >= 8.0 %}★★★★
+                            {% elif score >= 7.5 %}★★★☆
+                            {% elif score >= 7.0 %}★★★
+                            {% elif score >= 6.0 %}★★☆
+                            {% else %}★★
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        <div class="rating-score">{{ book.score }}</div>
+                        <div class="rating-count">{{ book.likes }}人点赞</div>
+                    </div>
+
+                    <div class="book-stats">
+                        <div class="book-word-count">
+                            {% if book.word_count >= 1000000 %}
+                            {{ book.word_count|divisibleby:1000000|floatformat:1 }}百万字
+                            {% elif book.word_count >= 10000 %}
+                            {{ book.word_count|divisibleby:10000|floatformat:1 }}万字
+                            {% else %}
+                            {{ book.word_count }}字
+                            {% endif %}
+                        </div>
+                        <div class="book-update-info">
+                            {% if book.book_status == '连载中' %}
+                            最近更新：{{ book.last_update|date:"Y-m-d" }}
+                            {% else %}
+                            状态：已完结
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <h3>暂无图书</h3>
+            <p>当前分类下还没有图书，请稍后再来查看。</p>
+            <a href="{% url 'category_list' %}"
+               class="btn-read"
+               style="text-decoration: none !important; border-bottom: none !important;">
+                返回分类列表
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- 分页导航 -->
+        {% if books.has_other_pages %}
+        <div class="pagination-container">
+            <div class="pagination-buttons">
+                {% if books.has_previous %}
+                <a href="?page={{ books.previous_page_number }}" class="btn-primary">上一页</a>
+                {% endif %}
+
+                {% for num in books.paginator.page_range %}
+                    {% if books.number == num %}
+                    <span class="btn-primary">{{ num }}</span>
+                    {% else %}
+                    <a href="?page={{ num }}" class="btn-secondary">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if books.has_next %}
+                <a href="?page={{ books.next_page_number }}" class="btn-primary">下一页</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 确保DOM完全加载
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('categories页面脚本开始执行...');
+
+    // 获取所有筛选标签
+    const filterTags = document.querySelectorAll('.filter-tag');
+    console.log('找到的筛选标签数量:', filterTags.length);
+
+    // 筛选标签点击功能 - 点击即筛选
+    filterTags.forEach(tag => {
+        tag.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('标签被点击:', this.dataset.filter, this.dataset.value);
+
+            const filterType = this.dataset.filter;
+            const filterValue = this.dataset.value;
+
+            // 如果是"全部"选项
+            if (filterValue === 'all') {
+                // 取消同组其他标签的选中状态
+                const buttonGroup = this.closest('.filter-tags');
+                if (buttonGroup) {
+                    buttonGroup.querySelectorAll('.filter-tag').forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                }
+                this.classList.add('selected');
+            } else {
+                // 如果是单选类型的筛选（分类、难度、受众）
+                if (filterType === 'category' || filterType === 'difficulty' || filterType === 'audience') {
+                    // 先取消同组的"全部"选项
+                    const allOption = this.closest('.filter-tags').querySelector('[data-value="all"]');
+                    if (allOption) {
+                        allOption.classList.remove('selected');
+                    }
+
+                    // 取消同组其他标签的选中状态
+                    const sameGroup = document.querySelectorAll(`[data-filter="${filterType}"]`);
+                    sameGroup.forEach(item => {
+                        item.classList.remove('selected');
+                    });
+
+                    this.classList.add('selected');
+                }
+                // 如果是热门榜单（支持多选）
+                else if (filterType === 'rank') {
+                    // 如果点击的是非全部选项，需要取消"全部"的选中状态
+                    const allOption = this.closest('.filter-tags').querySelector('[data-value="all"]');
+                    if (allOption) {
+                        allOption.classList.remove('selected');
+                    }
+
+                    // 切换选中状态
+                    this.classList.toggle('selected');
+                }
+            }
+
+            // 立即应用筛选
+            applyFilters();
+        });
+    });
+
+    // 辅助函数：收集categories页面的筛选条件
+    function collectCategoriesFilters() {
+        const filters = {
+            category: 'all',
+            difficulty: 'all',
+            audience: 'all',
+            rank: []
+        };
+
+        // 获取激活的筛选标签
+        document.querySelectorAll('.filter-tag.selected').forEach(tag => {
+            const type = tag.dataset.filter;
+            const value = tag.dataset.value;
+
+            if (type && value !== 'all') {
+                if (type === 'rank') {
+                    // 热门榜单可以多选
+                    filters[type].push(value);
+                } else {
+                    // 其他单选
+                    filters[type] = value;
+                }
+            }
+        });
+
+        return filters;
+    }
+
+    // 辅助函数：构建带筛选条件的URL
+    function buildCategoriesURL(filters) {
+        const params = new URLSearchParams(window.location.search);
+
+        // 移除页码参数
+        params.delete('page');
+
+        // 添加筛选参数
+        Object.keys(filters).forEach(key => {
+            if (key === 'rank') {
+                // 处理多选的榜单
+                if (filters[key].length > 0) {
+                    params.set(key, filters[key].join(','));
+                } else {
+                    // 如果榜单没有选中任何选项，设置为全部
+                    params.delete(key);
+                }
+            } else if (filters[key] !== 'all') {
+                params.set(key, filters[key]);
+            } else {
+                params.delete(key);
+            }
+        });
+
+        // 构建URL
+        let url = window.location.pathname;
+        const paramString = params.toString();
+        if (paramString) {
+            url += '?' + paramString;
+        }
+
+        return url;
+    }
+
+    // 应用筛选函数
+    function applyFilters() {
+        // 收集所有筛选条件
+        const filters = collectCategoriesFilters();
+        console.log('收集到的筛选条件:', filters);
+
+        // 构建URL并跳转
+        const url = buildCategoriesURL(filters);
+        console.log('跳转到URL:', url);
+        window.location.href = url;
+    }
+
+    // 辅助函数：页面加载时恢复筛选状态
+    function restoreCategoriesFilterState() {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // 恢复分类筛选
+        const categoryParam = urlParams.get('category');
+        if (categoryParam) {
+            // 先清除所有分类的选中状态
+            document.querySelectorAll('[data-filter="category"]').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // 选中对应的分类
+            const categoryTag = document.querySelector(`[data-filter="category"][data-value="${categoryParam}"]`);
+            if (categoryTag) {
+                categoryTag.classList.add('selected');
+            }
+        }
+
+        // 恢复难度筛选
+        const difficultyParam = urlParams.get('difficulty');
+        if (difficultyParam) {
+            document.querySelectorAll('[data-filter="difficulty"]').forEach(item => {
+                item.classList.remove('selected');
+            });
+            const difficultyTag = document.querySelector(`[data-filter="difficulty"][data-value="${difficultyParam}"]`);
+            if (difficultyTag) {
+                difficultyTag.classList.add('selected');
+            }
+        }
+
+        // 恢复受众筛选
+        const audienceParam = urlParams.get('audience');
+        if (audienceParam) {
+            document.querySelectorAll('[data-filter="audience"]').forEach(item => {
+                item.classList.remove('selected');
+            });
+            const audienceTag = document.querySelector(`[data-filter="audience"][data-value="${audienceParam}"]`);
+            if (audienceTag) {
+                audienceTag.classList.add('selected');
+            }
+        }
+
+        // 恢复热门榜单筛选（多选）
+        const rankParam = urlParams.get('rank');
+        if (rankParam) {
+            const rankValues = rankParam.split(',');
+            // 先清除所有榜单的选中状态
+            document.querySelectorAll('[data-filter="rank"]').forEach(item => {
+                item.classList.remove('selected');
+            });
+            // 选中对应的榜单
+            rankValues.forEach(rankValue => {
+                const rankTag = document.querySelector(`[data-filter="rank"][data-value="${rankValue}"]`);
+                if (rankTag) {
+                    rankTag.classList.add('selected');
+                }
+            });
+        }
+
+        // 如果没有任何筛选参数被选中，确保"全部"选项被选中
+        if (!categoryParam && !difficultyParam && !audienceParam && !rankParam) {
+            document.querySelectorAll('[data-value="all"]').forEach(allOption => {
+                allOption.classList.add('selected');
+            });
+        }
+    }
+
+    // 初始化时恢复筛选状态
+    restoreCategoriesFilterState();
+
+    console.log('categories页面脚本初始化完成');
+});
+</script>
+{% endblock %}
